@@ -59,6 +59,11 @@ static int pub()
 					type = CRED_PRIVATE_KEY;
 					subtype = KEY_BLISS;
 				}
+				else if (streq(arg, "sm2"))
+				{
+					type = CRED_PRIVATE_KEY;
+					subtype = KEY_SM2;	
+				}
 				else if (streq(arg, "priv"))
 				{
 					type = CRED_PRIVATE_KEY;
@@ -194,7 +199,7 @@ static void __attribute__ ((constructor))reg()
 	command_register((command_t) {
 		pub, 'p', "pub",
 		"extract the public key from a private key/certificate",
-		{"[--in file|--keyid hex] [--type rsa|ecdsa|bliss|priv|pub|pkcs10|x509]",
+		{"[--in file|--keyid hex] [--type rsa|ecdsa|bliss|sm2|priv|pub|pkcs10|x509]",
 		 "[--outform der|pem|dnskey|sshkey]"},
 		{
 			{"help",	'h', 0, "show usage information"},

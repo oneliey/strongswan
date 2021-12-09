@@ -56,6 +56,9 @@ static int gen()
 				{
 					type = KEY_BLISS;
 				}
+				else if (streq(arg, "sm2")) {
+					type = KEY_SM2;
+				}
 				else
 				{
 					return command_usage("invalid key type");
@@ -118,6 +121,9 @@ static int gen()
 			case KEY_BLISS:
 				size = 1;
 				break;
+			case KEY_SM2:
+				size = 256;
+				break;
 			default:
 				break;
 		}
@@ -173,12 +179,12 @@ static void __attribute__ ((constructor))reg()
 {
 	command_register((command_t) {
 		gen, 'g', "gen", "generate a new private key",
-		{"[--type rsa|ecdsa|ed25519|ed448|bliss] [--size bits] [--safe-primes]",
+		{"[--type rsa|ecdsa|ed25519|ed448|bliss|sm2] [--size bits] [--safe-primes]",
 		 "[--shares n] [--threshold l] [--outform der|pem]"},
 		{
 			{"help",		'h', 0, "show usage information"},
 			{"type",		't', 1, "type of key, default: rsa"},
-			{"size",		's', 1, "keylength in bits, default: rsa 2048, ecdsa 384, bliss 1"},
+			{"size",		's', 1, "keylength in bits, default: rsa 2048, ecdsa 384, bliss 1, sm2 256"},
 			{"safe-primes", 'p', 0, "generate rsa safe primes"},
 			{"shares",		'n', 1, "number of private rsa key shares"},
 			{"threshold",	'l', 1, "minimum number of participating rsa key shares"},

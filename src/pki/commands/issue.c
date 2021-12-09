@@ -134,6 +134,11 @@ static int issue()
 					type = CRED_PRIVATE_KEY;
 					subtype = KEY_BLISS;
 				}
+				else if(streq(arg, "sm2"))
+				{
+					type = CRED_PRIVATE_KEY;
+					subtype = KEY_SM2;
+				}
 				else if (streq(arg, "priv"))
 				{
 					type = CRED_PRIVATE_KEY;
@@ -398,12 +403,11 @@ static int issue()
 		error = "extracting CA certificate public key failed";
 		goto end;
 	}
-
-	DBG2(DBG_LIB, "Reading ca private key:");
+	DBG2(DBG_LIB, "[pki-issue]Reading ca private key: type(%N)", key_type_names, public->get_type(public));
 	if (cakey)
 	{
 		private = lib->creds->create(lib->creds, CRED_PRIVATE_KEY,
-									 public->get_type(public),
+									 public->get_type(public),  // TODO: SM get right type for private keys
 									 BUILD_FROM_FILE, cakey, BUILD_END);
 	}
 	else
@@ -494,7 +498,7 @@ static int issue()
 	}
 	else
 	{
-		DBG2(DBG_LIB, "Reading key:");
+		DBG2(DBG_LIB, "[pki-issue]Reading key:");
 		if (file)
 		{
 			public = lib->creds->create(lib->creds, type, subtype,
@@ -533,6 +537,7 @@ static int issue()
 										chunk_from_chars(ASN1_SEQUENCE, 0));
 	}
 	scheme = get_signature_scheme(private, digest, pss);
+	DBG1(DBG_LIB, "issue scheme: %N\n digest: %N, priv_key type: %N", signature_scheme_names, scheme->scheme, hash_algorithm_names, digest, key_type_names, private->get_type(private));
 	if (!scheme)
 	{
 		error = "no signature scheme found";
@@ -623,7 +628,7 @@ static void __attribute__ ((constructor))reg()
 	command_register((command_t) {
 		issue, 'i', "issue",
 		"issue a certificate using a CA certificate and key",
-		{"[--in file] [--type pub|pkcs10|priv|rsa|ecdsa|ed25519|ed448|bliss]",
+		{"[--in file] [--type pub|pkcs10|priv|rsa|ecdsa|ed25519|ed448|bliss|sm2]",
 		 "--cakey file|--cakeyid hex --cacert file [--dn subject-dn]",
 		 "[--san subjectAltName]+ [--lifetime days] [--serial hex]",
 		 "[--ca] [--pathlen len]",
@@ -632,7 +637,7 @@ static void __attribute__ ((constructor))reg()
 		 "[--nc-excluded name] [--policy-mapping issuer-oid:subject-oid]",
 		 "[--policy-explicit len] [--policy-inhibit len] [--policy-any len]",
 		 "[--cert-policy oid [--cps-uri uri] [--user-notice text]]+",
-		 "[--digest md5|sha1|sha224|sha256|sha384|sha512|sha3_224|sha3_256|sha3_384|sha3_512]",
+		 "[--digest md5|sha1|sha224|sha256|sha384|sha512|sha3_224|sha3_256|sha3_384|sha3_512|sm3]",
 		 "[--rsa-padding pkcs1|pss] [--critical oid]",
 		 "[--outform der|pem]"},
 		{

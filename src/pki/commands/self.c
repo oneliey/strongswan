@@ -110,6 +110,10 @@ static int self()
 				{
 					type = KEY_BLISS;
 				}
+				else if (streq(arg, "sm2"))
+				{
+					type = KEY_SM2;
+				}
 				else if (streq(arg, "priv"))
 				{
 					type = KEY_ANY;
@@ -326,6 +330,7 @@ static int self()
 	}
 	if (file)
 	{
+		DBG2(DBG_LIB, "[pki-self]read private key from file: private_key(%d)", type);
 		private = lib->creds->create(lib->creds, CRED_PRIVATE_KEY, type,
 									 BUILD_FROM_FILE, file, BUILD_END);
 	}
@@ -358,6 +363,7 @@ static int self()
 		error = "loading private key failed";
 		goto end;
 	}
+	DBG2(DBG_LIB, "[pki-self]Call get_public_key");
 	public = private->get_public_key(private);
 	if (!public)
 	{
@@ -374,6 +380,7 @@ static int self()
 		goto end;
 	}
 	scheme = get_signature_scheme(private, digest, pss);
+	DBG2(DBG_LIB, "[pki-self]signature scheme: private_key - %N(%d), digest - %N(%d)", key_type_names, private->get_type(private), private->get_type(private), hash_algorithm_names, digest, digest);
 	if (!scheme)
 	{
 		error = "no signature scheme found";
@@ -458,7 +465,7 @@ static void __attribute__ ((constructor))reg()
 	command_register((command_t) {
 		self, 's', "self",
 		"create a self signed certificate",
-		{"[--in file|--keyid hex] [--type rsa|ecdsa|ed25519|ed448|bliss|priv]",
+		{"[--in file|--keyid hex] [--type rsa|ecdsa|ed25519|ed448|bliss|sm2|priv]",
 		 " --dn distinguished-name [--san subjectAltName]+",
 		 "[--lifetime days] [--serial hex] [--ca] [--ocsp uri]+",
 		 "[--flag serverAuth|clientAuth|crlSign|ocspSigning|msSmartcardLogon]+",
@@ -466,7 +473,7 @@ static void __attribute__ ((constructor))reg()
 		 "[--policy-map issuer-oid:subject-oid]",
 		 "[--policy-explicit len] [--policy-inhibit len] [--policy-any len]",
 		 "[--cert-policy oid [--cps-uri uri] [--user-notice text]]+",
-		 "[--digest md5|sha1|sha224|sha256|sha384|sha512|sha3_224|sha3_256|sha3_384|sha3_512]",
+		 "[--digest md5|sha1|sha224|sha256|sha384|sha512|sha3_224|sha3_256|sha3_384|sha3_512|sm3]",
 		 "[--rsa-padding pkcs1|pss] [--critical oid]",
 		 "[--outform der|pem]"},
 		{
