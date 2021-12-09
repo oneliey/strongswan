@@ -257,6 +257,17 @@ openssl_crypter_t *openssl_crypter_create(encryption_algorithm_t algo,
 			this->cipher = EVP_des_ecb();
 			break;
 #endif
+#ifndef OPENSSL_NO_SM
+		case ENCR_SM4_CBC:
+			key_size = 16;
+			this->cipher = EVP_get_cipherbyname("sm4-cbc");
+		case ENCR_SM4_ECB:
+			key_size = 16;
+			this->cipher = EVP_get_cipherbyname("sm4-ecb");
+		case ENCR_SM4_CTR:
+			key_size = 16;
+			this->cipher = EVP_get_cipherbyname("sm4-ctr");
+#endif
 		default:
 		{
 			char* name;

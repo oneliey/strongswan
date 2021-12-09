@@ -45,6 +45,8 @@ ext_out_function_t xof_mgf1_from_hash_algorithm(hash_algorithm_t alg)
 			return XOF_MGF1_SHA384;
 		case HASH_SHA512:
 			return XOF_MGF1_SHA512;
+		case HASH_SM3:
+			// ?: return XOF_MGF1_SM3; 
 		case HASH_IDENTITY:
 		case HASH_UNKNOWN:
 		case HASH_MD2:

@@ -27,7 +27,8 @@ ENUM_BEGIN(hash_algorithm_names, HASH_SHA1, HASH_IDENTITY,
 	"HASH_SHA2_384",
 	"HASH_SHA2_512",
 	"HASH_IDENTITY");
-ENUM_NEXT(hash_algorithm_names, HASH_UNKNOWN, HASH_SHA3_512, HASH_IDENTITY,
+ENUM_NEXT(hash_algorithm_names, HASH_UNKNOWN, HASH_SM3, HASH_IDENTITY,
+// ENUM_NEXT(hash_algorithm_names, HASH_UNKNOWN, HASH_SHA3_512, HASH_IDENTITY,
 	"HASH_UNKNOWN",
 	"HASH_MD2",
 	"HASH_MD4",
@@ -36,8 +37,10 @@ ENUM_NEXT(hash_algorithm_names, HASH_UNKNOWN, HASH_SHA3_512, HASH_IDENTITY,
 	"HASH_SHA3_224",
 	"HASH_SHA3_256",
 	"HASH_SHA3_384",
-	"HASH_SHA3_512");
-ENUM_END(hash_algorithm_names, HASH_SHA3_512);
+	"HASH_SHA3_512",
+	"HASH_SM3");
+ENUM_END(hash_algorithm_names, HASH_SM3);
+// ENUM_END(hash_algorithm_names, HASH_SHA3_512);
 
 ENUM_BEGIN(hash_algorithm_short_names, HASH_SHA1, HASH_IDENTITY,
 	"sha1",
@@ -45,7 +48,7 @@ ENUM_BEGIN(hash_algorithm_short_names, HASH_SHA1, HASH_IDENTITY,
 	"sha384",
 	"sha512",
 	"identity");
-ENUM_NEXT(hash_algorithm_short_names, HASH_UNKNOWN, HASH_SHA3_512, HASH_IDENTITY,
+ENUM_NEXT(hash_algorithm_short_names, HASH_UNKNOWN, HASH_SM3, HASH_IDENTITY,
 	"unknown",
 	"md2",
 	"md4",
@@ -54,8 +57,9 @@ ENUM_NEXT(hash_algorithm_short_names, HASH_UNKNOWN, HASH_SHA3_512, HASH_IDENTITY
 	"sha3_224",
 	"sha3_256",
 	"sha3_384",
-	"sha3_512");
-ENUM_END(hash_algorithm_short_names, HASH_SHA3_512);
+	"sha3_512",
+	"sm3");
+ENUM_END(hash_algorithm_short_names, HASH_SM3);
 
 ENUM_BEGIN(hash_algorithm_short_names_upper, HASH_SHA1, HASH_IDENTITY,
 	"SHA1",
@@ -63,7 +67,7 @@ ENUM_BEGIN(hash_algorithm_short_names_upper, HASH_SHA1, HASH_IDENTITY,
 	"SHA2_384",
 	"SHA2_512",
 	"IDENTITY");
-ENUM_NEXT(hash_algorithm_short_names_upper, HASH_UNKNOWN, HASH_SHA3_512, HASH_IDENTITY,
+ENUM_NEXT(hash_algorithm_short_names_upper, HASH_UNKNOWN, HASH_SM3, HASH_IDENTITY,
 	"UNKNOWN",
 	"MD2",
 	"MD4",
@@ -72,8 +76,9 @@ ENUM_NEXT(hash_algorithm_short_names_upper, HASH_UNKNOWN, HASH_SHA3_512, HASH_ID
 	"SHA3_224",
 	"SHA3_256",
 	"SHA3_384",
-	"SHA3_512");
-ENUM_END(hash_algorithm_short_names_upper, HASH_SHA3_512);
+	"SHA3_512",
+	"SM3");
+ENUM_END(hash_algorithm_short_names_upper, HASH_SM3);
 
 /*
  * Described in header
@@ -106,6 +111,8 @@ size_t hasher_hash_size(hash_algorithm_t alg)
 			return HASH_SIZE_SHA384;
 		case HASH_SHA3_512:
 			return HASH_SIZE_SHA512;
+		case HASH_SM3:
+			return HASH_SIZE_SM3;
 		case HASH_IDENTITY:
 		case HASH_UNKNOWN:
 			break;
@@ -156,6 +163,9 @@ hash_algorithm_t hasher_algorithm_from_oid(int oid)
 		case OID_ED25519:
 		case OID_ED448:
 			return HASH_IDENTITY;
+		case OID_SM3:
+		case OID_SM2_WITH_SM3:
+			return HASH_SM3;
 		default:
 			return HASH_UNKNOWN;
 	}
@@ -180,6 +190,8 @@ hash_algorithm_t hasher_algorithm_from_prf(pseudo_random_function_t alg)
 			return HASH_SHA384;
 		case PRF_HMAC_SHA2_512:
 			return HASH_SHA512;
+		case PRF_HMAC_SM3:
+			return HASH_SM3;
 		case PRF_HMAC_TIGER:
 		case PRF_AES128_XCBC:
 		case PRF_AES128_CMAC:
@@ -219,6 +231,7 @@ hash_algorithm_t hasher_algorithm_from_integrity(integrity_algorithm_t alg,
 				break;
 			case AUTH_HMAC_SHA2_256_256:
 			case AUTH_HMAC_SHA2_512_256:
+			case AUTH_HMAC_SM3:
 				*length = 32;
 				break;
 			case AUTH_HMAC_SHA2_384_384:
@@ -251,6 +264,8 @@ hash_algorithm_t hasher_algorithm_from_integrity(integrity_algorithm_t alg,
 		case AUTH_HMAC_SHA2_512_256:
 		case AUTH_HMAC_SHA2_512_512:
 			return HASH_SHA512;
+		case AUTH_HMAC_SM3:
+			return HASH_SM3;
 		case AUTH_AES_CMAC_96:
 		case AUTH_AES_128_GMAC:
 		case AUTH_AES_192_GMAC:
@@ -322,6 +337,12 @@ integrity_algorithm_t hasher_algorithm_to_integrity(hash_algorithm_t alg,
 					return AUTH_HMAC_SHA2_512_512;
 			}
 			break;
+		case HASH_SM3:
+			switch (length)
+			{
+				case 32:
+					return AUTH_HMAC_SM3;
+			}
 		case HASH_MD2:
 		case HASH_MD4:
 		case HASH_SHA224:
@@ -347,6 +368,7 @@ bool hasher_algorithm_for_ikev2(hash_algorithm_t alg)
 		case HASH_SHA256:
 		case HASH_SHA384:
 		case HASH_SHA512:
+		case HASH_SM3:
 			return TRUE;
 		case HASH_UNKNOWN:
 		case HASH_MD2:
@@ -405,6 +427,9 @@ int hasher_algorithm_to_oid(hash_algorithm_t alg)
 		case HASH_SHA3_512:
 			oid = OID_SHA3_512;
 			break;
+		case HASH_SM3:
+			oid = OID_SM3;
+			break;
 		default:
 			oid = OID_UNKNOWN;
 	}
@@ -457,6 +482,8 @@ int hasher_signature_algorithm_to_oid(hash_algorithm_t alg, key_type_t key)
 					return OID_ECDSA_WITH_SHA384;
 				case HASH_SHA512:
 					return OID_ECDSA_WITH_SHA512;
+				case HASH_SM3:
+					return OID_SM2_WITH_SM3;
 				default:
 					return OID_UNKNOWN;
 			}
@@ -491,6 +518,14 @@ int hasher_signature_algorithm_to_oid(hash_algorithm_t alg, key_type_t key)
 					return OID_BLISS_WITH_SHA3_384;
 				case HASH_SHA3_512:
 					return OID_BLISS_WITH_SHA3_512;
+				default:
+					return OID_UNKNOWN;
+			}
+		case KEY_SM2:
+			switch (alg)
+			{
+				case HASH_SM3:
+					return OID_SM2_WITH_SM3;
 				default:
 					return OID_UNKNOWN;
 			}
@@ -554,6 +589,8 @@ hash_algorithm_t hasher_from_signature_scheme(signature_scheme_t scheme,
 		case SIGN_RSA_EMSA_PKCS1_SHA3_512:
 		case SIGN_BLISS_WITH_SHA3_512:
 			return HASH_SHA3_512;
+		case SIGN_SM2_WITH_SM3:
+			return HASH_SM3;
 	}
 	return HASH_UNKNOWN;
 }

@@ -69,6 +69,29 @@
     0x37                     "targetInformation"		OID_TARGET_INFORMATION
     0x38                     "noRevAvail"				OID_NO_REV_AVAIL
 0x2A                         ""
+  0x81                       ""
+    0x1C                     "cn"
+      0xCF                   ""
+        0x55                 "oscca"
+          0x01               "sm-scheme"
+            0x66             "sm1"
+            0x68             "sm4"
+              0x01           "sm4-ecb"      OID_SM4_ECB
+              0x02           "sm4-cbc"      OID_SM4_CBC
+              0x03           "sm4-ofb128"
+              0x04           "sm4-cfb1"
+              0x05           "sm4-cfb128"
+              0x06           "sm4-cfb8"
+              0x07           "sm4-ctr"      OID_SM4_CTR
+              0x08           "sm4-gcm"
+              0x09           "sm4-ccm"
+            0x82             ""
+              0x2D           "sm2"      OID_SM2
+            0x83             ""
+              0x11           "sm3"      OID_SM3
+                0x02         "hmacWithSM3"   OID_HMAC_SM3
+              0x75           "sm2-with-sm3"			OID_SM2_WITH_SM3
+              0x78           "sm3WithRSAEncryption" OID_SM3_WITH_RSA
   0x83                       ""
     0x08                     "jp"
       0x8C                   ""

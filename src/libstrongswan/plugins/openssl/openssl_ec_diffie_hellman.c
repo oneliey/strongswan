@@ -367,6 +367,12 @@ openssl_ec_diffie_hellman_t *openssl_ec_diffie_hellman_create(diffie_hellman_gro
 			key = EC_KEY_new_by_curve_name(NID_brainpoolP512r1);
 			break;
 #endif
+/* added with 1.1.1 */
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL
+		case CURVE_SM2:
+			key = EC_KEY_new_by_curve_name(NID_sm2);
+			break;
+#endif
 		default:
 			break;
 	}

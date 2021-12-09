@@ -108,6 +108,8 @@ enum auth_rule_t {
 	AUTH_RULE_ECDSA_STRENGTH,
 	/** required BLISS public key strength, u_int in bits */
 	AUTH_RULE_BLISS_STRENGTH,
+	/** required SM2 public key strength, u_int in bits */
+	// AUTH_RULE_SM2_STRENGTH, TODO: SM2
 	/** required signature scheme, signature_params_t* */
 	AUTH_RULE_SIGNATURE_SCHEME,
 	/** required signature scheme for IKE authentication, signature_params_t* */

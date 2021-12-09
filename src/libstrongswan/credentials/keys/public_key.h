@@ -48,7 +48,10 @@ enum key_type_t {
 	/** Ed448   PureEdDSA instance as in RFC 8032 */
 	KEY_ED448   = 5,
 	/** BLISS */
-	KEY_BLISS = 6,
+	KEY_BLISS 	= 6,
+	/** SM2  */
+	KEY_SM2 	= 7,
+	// ?: Merge into KEY_ECDSA, the same as EC_KEY
 };
 
 /**
@@ -88,6 +91,8 @@ enum signature_scheme_t {
 	SIGN_RSA_EMSA_PKCS1_SHA3_384,
 	/** EMSA-PKCS1_v1.5 signature as in PKCS#1 using RSA and SHA-3_512 */
 	SIGN_RSA_EMSA_PKCS1_SHA3_512,
+	/** EMSA-PKCS1_v1.5 signature as in PKCS#1 using RSA and SM3       */
+	SIGN_RSA_EMSA_PKCS1_SM3,
 	/** EMSA-PSS signature as in PKCS#1 using RSA                      */
 	SIGN_RSA_EMSA_PSS,
 	/** ECDSA with SHA-1 using DER encoding as in RFC 3279             */
@@ -122,6 +127,8 @@ enum signature_scheme_t {
 	SIGN_BLISS_WITH_SHA3_384,
 	/** BLISS with SHA-3_512                                           */
 	SIGN_BLISS_WITH_SHA3_512,
+	/** SM2 with SM3                                                   */
+	SIGN_SM2_WITH_SM3,
 };
 
 /**

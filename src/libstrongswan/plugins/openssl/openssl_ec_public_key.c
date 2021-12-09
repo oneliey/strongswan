@@ -48,6 +48,12 @@ struct private_openssl_ec_public_key_t {
 	EC_KEY *ec;
 
 	/**
+	 * EC_KEY type
+	 * KEY_ECDSA / KEY_SM2
+	 */
+	key_type_t type; // ?: whether need this field
+
+	/**
 	 * reference counter
 	 */
 	refcount_t ref;
@@ -146,7 +152,7 @@ static bool verify_der_signature(private_openssl_ec_public_key_t *this,
 METHOD(public_key_t, get_type, key_type_t,
 	private_openssl_ec_public_key_t *this)
 {
-	return KEY_ECDSA;
+	return this->type;
 }
 
 METHOD(public_key_t, verify, bool,
@@ -174,6 +180,9 @@ METHOD(public_key_t, verify, bool,
 		case SIGN_ECDSA_521:
 			return verify_curve_signature(this, scheme, NID_sha512,
 										  NID_secp521r1, data, signature);
+		case SIGN_SM2_WITH_SM3:
+			return verify_curve_signature(this, scheme, NID_sm3,
+										 NID_sm2, data, signature);
 		default:
 			DBG1(DBG_LIB, "signature scheme %N not supported in EC",
 				 signature_scheme_names, scheme);
@@ -248,6 +257,7 @@ METHOD(public_key_t, get_encoding, bool,
 	private_openssl_ec_public_key_t *this, cred_encoding_type_t type,
 	chunk_t *encoding)
 {
+	DBG1(DBG_LIB, "[openssl](pub_key).get_encoding(): encoding type: %d", type);
 	bool success = TRUE;
 	u_char *p;
 
@@ -325,7 +335,7 @@ openssl_ec_public_key_t *openssl_ec_public_key_load(key_type_t type,
 	private_openssl_ec_public_key_t *this;
 	chunk_t blob = chunk_empty;
 
-	if (type != KEY_ECDSA)
+	if (type != KEY_ECDSA && type != KEY_SM2)
 	{
 		return NULL;
 	}
@@ -346,11 +356,14 @@ openssl_ec_public_key_t *openssl_ec_public_key_load(key_type_t type,
 	}
 	this = create_empty();
 	this->ec = d2i_EC_PUBKEY(NULL, (const u_char**)&blob.ptr, blob.len);
+	EC_KEY_METHOD*meth = EC_KEY_get_method(this->ec);
+	// DBG1(DBG_LIB, "openssl-plugin: ec-method[%s], version[%d]", this->ec->meth->name, this->ec->version);
 	if (!this->ec)
 	{
 		destroy(this);
 		return NULL;
 	}
+	this->type = type;
 	return &this->public;
 }
 #endif /* OPENSSL_NO_ECDSA */

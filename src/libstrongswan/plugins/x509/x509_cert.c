@@ -2243,12 +2243,15 @@ static bool generate(private_x509_cert_t *cert, certificate_t *sign_cert,
 	}
 	else
 	{	/* self signed */
+		DBG1(DBG_LIB, "[x509]Generate cert (self signed)");
 		issuer = subject;
 		if (!cert->public_key)
 		{
 			cert->public_key = sign_key->get_public_key(sign_key);
 		}
 		cert->flags |= X509_SELF_SIGNED;
+		key_type_t pub_key_type = cert->public_key->get_type(cert->public_key);
+		DBG1(DBG_LIB, "[x509]public key: %N(%d)", key_type_names, pub_key_type, pub_key_type);
 	}
 	cert->issuer = issuer->clone(issuer);
 	if (!cert->notBefore)

@@ -633,6 +633,7 @@ static const struct {
 	{AUTH_AES_XCBC_96,					PRF_AES128_XCBC					},
 	{AUTH_CAMELLIA_XCBC_96,				PRF_CAMELLIA128_XCBC			},
 	{AUTH_AES_CMAC_96,					PRF_AES128_CMAC					},
+	{AUTH_HMAC_SM3,						PRF_HMAC_SM3					},
 };
 
 /**
@@ -1055,6 +1056,7 @@ static bool proposal_add_supported_ike(private_proposal_t *this, bool aead)
 					add_algorithm(this, ENCRYPTION_ALGORITHM, encryption, 192);
 					add_algorithm(this, ENCRYPTION_ALGORITHM, encryption, 256);
 					break;
+				// TODO: Add ENCR_SM4_CBC ENCR_SM4_CTR
 				default:
 					break;
 			}
@@ -1259,11 +1261,13 @@ proposal_t *proposal_create_default(protocol_id_t protocol)
 			add_algorithm(this, ENCRYPTION_ALGORITHM, ENCR_AES_CBC,          128);
 			add_algorithm(this, ENCRYPTION_ALGORITHM, ENCR_AES_CBC,          192);
 			add_algorithm(this, ENCRYPTION_ALGORITHM, ENCR_AES_CBC,          256);
+			add_algorithm(this, ENCRYPTION_ALGORITHM, ENCR_SM4_CBC,          256);
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SHA2_256_128,  0);
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SHA2_384_192,  0);
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SHA2_512_256,  0);
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SHA1_96,       0);
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_AES_XCBC_96,        0);
+			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SM3,           0);
 			add_algorithm(this, EXTENDED_SEQUENCE_NUMBERS, NO_EXT_SEQ_NUMBERS, 0);
 			break;
 		case PROTO_AH:
@@ -1272,6 +1276,7 @@ proposal_t *proposal_create_default(protocol_id_t protocol)
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SHA2_512_256,  0);
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SHA1_96,       0);
 			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_AES_XCBC_96,        0);
+			add_algorithm(this, INTEGRITY_ALGORITHM,  AUTH_HMAC_SM3,           0);
 			add_algorithm(this, EXTENDED_SEQUENCE_NUMBERS, NO_EXT_SEQ_NUMBERS, 0);
 			break;
 		default:

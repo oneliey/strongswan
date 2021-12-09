@@ -140,11 +140,11 @@ METHOD(credential_factory_t, create, void*,
 
 	this->lock->read_lock(this->lock);
 	enumerator = this->constructors->create_enumerator(this->constructors);
-	while (enumerator->enumerate(enumerator, &entry))
+	while (enumerator->enumerate(enumerator, &entry)) // Using Plugins
 	{
 		if (entry->type == type && entry->subtype == subtype)
 		{
-			DBG2(DBG_LIB, "builder L%d %N - %N of plugin '%s'",
+			DBG1(DBG_LIB, "builder L%d %N - %N of plugin '%s'",
 				 (int)level, credential_type_names, type, names, subtype,
 				 entry->plugin_name);
 			va_start(args, subtype);

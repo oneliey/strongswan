@@ -49,6 +49,12 @@ struct private_openssl_ec_private_key_t {
 	EC_KEY *ec;
 
 	/**
+	 * EC_KEY type
+	 * KEY_ECDSA / KEY_SM2
+	 */
+	key_type_t type; // ?: whether need this field
+
+	/**
 	 * TRUE if the key is from an OpenSSL ENGINE and might not be readable
 	 */
 	bool engine;
@@ -174,6 +180,9 @@ METHOD(private_key_t, sign, bool,
 		case SIGN_ECDSA_521:
 			return build_curve_signature(this, scheme, NID_sha512,
 										 NID_secp521r1, data, signature);
+		case SIGN_SM2_WITH_SM3:
+			return build_curve_signature(this, scheme, NID_sm3,
+										 NID_sm2, data, signature);
 		default:
 			DBG1(DBG_LIB, "signature scheme %N not supported",
 				 signature_scheme_names, scheme);
@@ -198,7 +207,8 @@ METHOD(private_key_t, get_keysize, int,
 METHOD(private_key_t, get_type, key_type_t,
 	private_openssl_ec_private_key_t *this)
 {
-	return KEY_ECDSA;
+	return this->type;
+	// return KEY_ECDSA;
 }
 
 METHOD(private_key_t, get_public_key, public_key_t*,
@@ -212,7 +222,9 @@ METHOD(private_key_t, get_public_key, public_key_t*,
 	p = key.ptr;
 	i2d_EC_PUBKEY(this->ec, &p);
 
-	public = lib->creds->create(lib->creds, CRED_PUBLIC_KEY, KEY_ECDSA,
+	DBG2(DBG_LIB, "[openssl-ec_priv_key](ec_priv_key).get_pub_key: key_type - %N(%d)", this->type, key_type_names, this->type);
+	public = lib->creds->create(lib->creds, CRED_PUBLIC_KEY, this->type,
+	// public = lib->creds->create(lib->creds, CRED_PUBLIC_KEY, KEY_ECDSA,
 								BUILD_BLOB_ASN1_DER, key, BUILD_END);
 	free(key.ptr);
 	return public;
@@ -321,8 +333,20 @@ private_key_t *openssl_ec_private_key_create(EVP_PKEY *key, bool engine)
 {
 	private_openssl_ec_private_key_t *this;
 	EC_KEY *ec;
+	key_type_t type;
 
 	ec = EVP_PKEY_get1_EC_KEY(key);
+	switch (EVP_PKEY_base_id(key))
+	{
+		case EVP_PKEY_EC:
+			type = KEY_ECDSA;
+			break;
+		case EVP_PKEY_SM2:
+			type = KEY_SM2;
+		default:
+			EVP_PKEY_free(key);
+			return NULL;
+	}
 	EVP_PKEY_free(key);
 	if (!ec)
 	{
@@ -331,6 +355,7 @@ private_key_t *openssl_ec_private_key_create(EVP_PKEY *key, bool engine)
 	this = create_empty();
 	this->ec = ec;
 	this->engine = engine;
+	this->type = type;
 	return &this->public.key;
 }
 
@@ -362,21 +387,33 @@ openssl_ec_private_key_t *openssl_ec_private_key_gen(key_type_t type,
 		return NULL;
 	}
 	this = create_empty();
-	switch (key_size)
+	switch (type)
 	{
-		case 256:
-			this->ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
-			break;
-		case 384:
-			this->ec = EC_KEY_new_by_curve_name(NID_secp384r1);
-			break;
-		case 521:
-			this->ec = EC_KEY_new_by_curve_name(NID_secp521r1);
-			break;
-		default:
-			DBG1(DBG_LIB, "EC private key size %d not supported", key_size);
-			destroy(this);
-			return NULL;
+	case KEY_SM2:
+		this->ec = EC_KEY_new_by_curve_name(NID_sm2);
+		break;
+	case KEY_ECDSA:
+		switch (key_size)
+		{
+			case 256:
+				this->ec = EC_KEY_new_by_curve_name(NID_X9_62_prime256v1);
+				break;
+			case 384:
+				this->ec = EC_KEY_new_by_curve_name(NID_secp384r1);
+				break;
+			case 521:
+				this->ec = EC_KEY_new_by_curve_name(NID_secp521r1);
+				break;
+			default:
+				DBG1(DBG_LIB, "EC private key size %d not supported", key_size);
+				destroy(this);
+				return NULL;
+		}
+		break;
+	default:
+		DBG1(DBG_LIB, "EC private key type %d not supported", type);
+		destroy(this);
+		return NULL;
 	}
 	if (EC_KEY_generate_key(this->ec) != 1)
 	{
@@ -384,6 +421,7 @@ openssl_ec_private_key_t *openssl_ec_private_key_gen(key_type_t type,
 		destroy(this);
 		return NULL;
 	}
+	this->type = type;
 	/* encode as a named curve key (no parameters), uncompressed public key */
 	EC_KEY_set_asn1_flag(this->ec, OPENSSL_EC_NAMED_CURVE);
 	EC_KEY_set_conv_form(this->ec, POINT_CONVERSION_UNCOMPRESSED);
@@ -396,6 +434,7 @@ openssl_ec_private_key_t *openssl_ec_private_key_gen(key_type_t type,
 openssl_ec_private_key_t *openssl_ec_private_key_load(key_type_t type,
 													  va_list args)
 {
+	DBG2(DBG_LIB, "[openssl-ec_priv_key]openssl_ec_private_key_load: private_key - %N(%d)", key_type_names, type, type);
 	private_openssl_ec_private_key_t *this;
 	chunk_t par = chunk_empty, key = chunk_empty;
 
@@ -412,6 +451,7 @@ openssl_ec_private_key_t *openssl_ec_private_key_load(key_type_t type,
 			case BUILD_END:
 				break;
 			default:
+				DBG1(DBG_LIB, "[openssl-ec_priv_key]openssl_ec_private_key_load: Return NULL!");
 				return NULL;
 		}
 		break;
@@ -443,6 +483,7 @@ openssl_ec_private_key_t *openssl_ec_private_key_load(key_type_t type,
 	{
 		goto error;
 	}
+	this->type = type;
 	return &this->public;
 
 error:

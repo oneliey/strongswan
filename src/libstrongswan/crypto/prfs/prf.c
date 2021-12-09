@@ -19,13 +19,14 @@
 
 #include <asn1/oid.h>
 
-ENUM_BEGIN(pseudo_random_function_names, PRF_UNDEFINED, PRF_CAMELLIA128_XCBC,
+ENUM_BEGIN(pseudo_random_function_names, PRF_UNDEFINED, PRF_HMAC_SM3,
 	"PRF_UNDEFINED",
 	"PRF_FIPS_SHA1_160",
 	"PRF_FIPS_DES",
 	"PRF_KEYED_SHA1",
-	"PRF_CAMELLIA128_XCBC");
-ENUM_NEXT(pseudo_random_function_names, PRF_HMAC_MD5, PRF_AES128_CMAC, PRF_CAMELLIA128_XCBC,
+	"PRF_CAMELLIA128_XCBC",
+	"PRF_HMAC_SM3");
+ENUM_NEXT(pseudo_random_function_names, PRF_HMAC_MD5, PRF_AES128_CMAC, PRF_HMAC_SM3,
 	"PRF_HMAC_MD5",
 	"PRF_HMAC_SHA1",
 	"PRF_HMAC_TIGER",
@@ -51,6 +52,8 @@ pseudo_random_function_t pseudo_random_function_from_oid(int oid)
 			return PRF_HMAC_SHA2_384;
 		case OID_HMAC_SHA512:
 			return PRF_HMAC_SHA2_512;
+		case OID_HMAC_SM3:
+			return PRF_HMAC_SM3;
 		case OID_HMAC_SHA224:
 		case OID_HMAC_SHA512_224:
 		case OID_HMAC_SHA512_256:

@@ -118,6 +118,9 @@ static bool add_key(private_pkcs12_t *this, EVP_PKEY *private)
 		case EVP_PKEY_EC:
 			type = KEY_ECDSA;
 			break;
+		case EVP_PKEY_SM2:
+			type = KEY_SM2;
+			break;
 		default:
 			EVP_PKEY_free(private);
 			return FALSE;

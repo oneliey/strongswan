@@ -20,17 +20,18 @@
 #include "public_key.h"
 #include "signature_params.h"
 
-ENUM(key_type_names, KEY_ANY, KEY_BLISS,
+ENUM(key_type_names, KEY_ANY, KEY_SM2,
 	"ANY",
 	"RSA",
 	"ECDSA",
 	"DSA",
 	"ED25519",
 	"ED448",
-	"BLISS"
+	"BLISS",
+	"SM2"
 );
 
-ENUM(signature_scheme_names, SIGN_UNKNOWN, SIGN_BLISS_WITH_SHA3_512,
+ENUM(signature_scheme_names, SIGN_UNKNOWN, SIGN_SM2_WITH_SM3,
 	"UNKNOWN",
 	"RSA_EMSA_PKCS1_NULL",
 	"RSA_EMSA_PKCS1_MD5",
@@ -43,6 +44,7 @@ ENUM(signature_scheme_names, SIGN_UNKNOWN, SIGN_BLISS_WITH_SHA3_512,
 	"RSA_EMSA_PKCS1_SHA3_256",
 	"RSA_EMSA_PKCS1_SHA3_384",
 	"RSA_EMSA_PKCS1_SHA3_512",
+	"RSA_EMSA_PKCS1_SM3",
 	"RSA_EMSA_PSS",
 	"ECDSA_WITH_SHA1_DER",
 	"ECDSA_WITH_SHA256_DER",
@@ -60,6 +62,7 @@ ENUM(signature_scheme_names, SIGN_UNKNOWN, SIGN_BLISS_WITH_SHA3_512,
 	"BLISS_WITH_SHA3_256",
 	"BLISS_WITH_SHA3_384",
 	"BLISS_WITH_SHA3_512",
+	"SM2_WITH_SM3",
 );
 
 ENUM(encryption_scheme_names, ENCRYPT_UNKNOWN, ENCRYPT_RSA_OAEP_SHA512,
@@ -140,6 +143,8 @@ signature_scheme_t signature_scheme_from_oid(int oid)
 		case OID_SHA512_WITH_RSA:
 		case OID_SHA512:
 			return SIGN_RSA_EMSA_PKCS1_SHA2_512;
+		case OID_SM3_WITH_RSA:
+			return SIGN_RSA_EMSA_PKCS1_SM3;
 		case OID_RSASSA_PKCS1V15_WITH_SHA3_224:
 			return SIGN_RSA_EMSA_PKCS1_SHA3_224;
 		case OID_RSASSA_PKCS1V15_WITH_SHA3_256:
@@ -176,6 +181,10 @@ signature_scheme_t signature_scheme_from_oid(int oid)
 			return SIGN_BLISS_WITH_SHA3_384;
 		case OID_BLISS_WITH_SHA3_256:
 			return SIGN_BLISS_WITH_SHA3_256;
+		case OID_SM2: // ?: check
+		case OID_SM2_WITH_SM3:
+		case OID_SM3:
+			return SIGN_SM2_WITH_SM3;
 	}
 	return SIGN_UNKNOWN;
 }
@@ -214,6 +223,8 @@ int signature_scheme_to_oid(signature_scheme_t scheme)
 			return OID_RSASSA_PKCS1V15_WITH_SHA3_384;
 		case SIGN_RSA_EMSA_PKCS1_SHA3_512:
 			return OID_RSASSA_PKCS1V15_WITH_SHA3_384;
+		case SIGN_RSA_EMSA_PKCS1_SM3:
+			return OID_SM3_WITH_RSA;
 		case SIGN_RSA_EMSA_PSS:
 			return OID_RSASSA_PSS;
 		case SIGN_ECDSA_WITH_SHA1_DER:
@@ -240,6 +251,8 @@ int signature_scheme_to_oid(signature_scheme_t scheme)
 			return OID_BLISS_WITH_SHA3_384;
 		case SIGN_BLISS_WITH_SHA3_512:
 			return OID_BLISS_WITH_SHA3_512;
+		case SIGN_SM2_WITH_SM3:
+			return OID_SM2_WITH_SM3;
 	}
 	return OID_UNKNOWN;
 }
@@ -273,6 +286,7 @@ static struct {
 	{ KEY_RSA,  3072, { .scheme = SIGN_RSA_EMSA_PKCS1_SHA2_256 }},
 	{ KEY_RSA,  7680, { .scheme = SIGN_RSA_EMSA_PKCS1_SHA2_384 }},
 	{ KEY_RSA,     0, { .scheme = SIGN_RSA_EMSA_PKCS1_SHA2_512 }},
+	{ KEY_RSA,     0, { .scheme = SIGN_RSA_EMSA_PKCS1_SM3	   }},
 	{ KEY_ECDSA, 256, { .scheme = SIGN_ECDSA_WITH_SHA256_DER }},
 	{ KEY_ECDSA, 384, { .scheme = SIGN_ECDSA_WITH_SHA384_DER }},
 	{ KEY_ECDSA,   0, { .scheme = SIGN_ECDSA_WITH_SHA512_DER }},
@@ -281,6 +295,7 @@ static struct {
 	{ KEY_BLISS, 128, { .scheme = SIGN_BLISS_WITH_SHA2_256 }},
 	{ KEY_BLISS, 192, { .scheme = SIGN_BLISS_WITH_SHA2_384 }},
 	{ KEY_BLISS,   0, { .scheme = SIGN_BLISS_WITH_SHA2_512 }},
+	{ KEY_SM2,	 256, { .scheme = SIGN_SM2_WITH_SM3}},
 };
 
 /**
@@ -354,6 +369,7 @@ key_type_t key_type_from_signature_scheme(signature_scheme_t scheme)
 		case SIGN_RSA_EMSA_PKCS1_SHA3_256:
 		case SIGN_RSA_EMSA_PKCS1_SHA3_384:
 		case SIGN_RSA_EMSA_PKCS1_SHA3_512:
+		case SIGN_RSA_EMSA_PKCS1_SM3:
 		case SIGN_RSA_EMSA_PSS:
 			return KEY_RSA;
 		case SIGN_ECDSA_WITH_SHA1_DER:
@@ -376,6 +392,8 @@ key_type_t key_type_from_signature_scheme(signature_scheme_t scheme)
 		case SIGN_BLISS_WITH_SHA3_384:
 		case SIGN_BLISS_WITH_SHA3_512:
 			return KEY_BLISS;
+		case SIGN_SM2_WITH_SM3:
+			return KEY_SM2;
 	}
 	return KEY_ANY;
 }

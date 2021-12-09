@@ -84,6 +84,8 @@ aes256gcm,        ENCRYPTION_ALGORITHM, ENCR_AES_GCM_ICV16,      256
 aes128gmac,       ENCRYPTION_ALGORITHM, ENCR_NULL_AUTH_AES_GMAC, 128
 aes192gmac,       ENCRYPTION_ALGORITHM, ENCR_NULL_AUTH_AES_GMAC, 192
 aes256gmac,       ENCRYPTION_ALGORITHM, ENCR_NULL_AUTH_AES_GMAC, 256
+sm4,              ENCRYPTION_ALGORITHM, ENCR_SM4_CBC,            256
+sm4ctr,           ENCRYPTION_ALGORITHM, ENCR_SM4_CTR,            256
 chacha20poly1305, ENCRYPTION_ALGORITHM, ENCR_CHACHA20_POLY1305,    0
 chacha20poly1305compat, ENCRYPTION_ALGORITHM, ENCR_CHACHA20_POLY1305, 256
 blowfish,         ENCRYPTION_ALGORITHM, ENCR_BLOWFISH,           128
@@ -140,6 +142,7 @@ md5_128,          INTEGRITY_ALGORITHM,  AUTH_HMAC_MD5_128,         0
 aesxcbc,          INTEGRITY_ALGORITHM,  AUTH_AES_XCBC_96,          0
 camelliaxcbc,     INTEGRITY_ALGORITHM,  AUTH_CAMELLIA_XCBC_96,     0
 aescmac,          INTEGRITY_ALGORITHM,  AUTH_AES_CMAC_96,          0
+sm3,              INTEGRITY_ALGORITHM,  AUTH_HMAC_SM3,             0
 prfsha1,          PSEUDO_RANDOM_FUNCTION, PRF_HMAC_SHA1,           0
 prfsha256,        PSEUDO_RANDOM_FUNCTION, PRF_HMAC_SHA2_256,       0
 prfsha384,        PSEUDO_RANDOM_FUNCTION, PRF_HMAC_SHA2_384,       0
@@ -148,6 +151,7 @@ prfmd5,           PSEUDO_RANDOM_FUNCTION, PRF_HMAC_MD5,            0
 prfaesxcbc,       PSEUDO_RANDOM_FUNCTION, PRF_AES128_XCBC,         0
 prfcamelliaxcbc,  PSEUDO_RANDOM_FUNCTION, PRF_CAMELLIA128_XCBC,    0
 prfaescmac,       PSEUDO_RANDOM_FUNCTION, PRF_AES128_CMAC,         0
+prfsm3,           PSEUDO_RANDOM_FUNCTION, PRF_HMAC_SM3,            0 
 modpnone,         DIFFIE_HELLMAN_GROUP, MODP_NONE,                 0
 modpnull,         DIFFIE_HELLMAN_GROUP, MODP_NULL,                 0
 modp768,          DIFFIE_HELLMAN_GROUP, MODP_768_BIT,              0
@@ -174,6 +178,8 @@ curve25519,       DIFFIE_HELLMAN_GROUP, CURVE_25519,               0
 x25519,           DIFFIE_HELLMAN_GROUP, CURVE_25519,               0
 curve448,         DIFFIE_HELLMAN_GROUP, CURVE_448,                 0
 x448,             DIFFIE_HELLMAN_GROUP, CURVE_448,                 0
+curvesm2,         DIFFIE_HELLMAN_GROUP, CURVE_SM2,                 0
+sm2dh,            DIFFIE_HELLMAN_GROUP, CURVE_SM2,                 0
 ntru112,          DIFFIE_HELLMAN_GROUP, NTRU_112_BIT,              0
 ntru128,          DIFFIE_HELLMAN_GROUP, NTRU_128_BIT,              0
 ntru192,          DIFFIE_HELLMAN_GROUP, NTRU_192_BIT,              0

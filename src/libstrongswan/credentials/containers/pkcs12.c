@@ -87,6 +87,7 @@ static bool derive_key(hash_algorithm_t hash, chunk_t unicode, chunk_t salt,
 		case HASH_SHA1:
 		case HASH_SHA224:
 		case HASH_SHA256:
+		case HASH_SM3:
 			v = 64;
 			break;
 		case HASH_SHA384:

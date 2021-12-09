@@ -53,7 +53,9 @@ ENUM_NEXT(diffie_hellman_group_names, NTRU_112_BIT, NTRU_256_BIT, MODP_NULL,
 	"NTRU_256");
 ENUM_NEXT(diffie_hellman_group_names, NH_128_BIT, NH_128_BIT, NTRU_256_BIT,
 	"NEWHOPE_128");
-ENUM_NEXT(diffie_hellman_group_names, MODP_CUSTOM, MODP_CUSTOM, NH_128_BIT,
+ENUM_NEXT(diffie_hellman_group_names, CURVE_SM2, CURVE_SM2, NH_128_BIT,
+	"CURVE_SM2");
+ENUM_NEXT(diffie_hellman_group_names, MODP_CUSTOM, MODP_CUSTOM, CURVE_SM2,
 	"MODP_CUSTOM");
 ENUM_END(diffie_hellman_group_names, MODP_CUSTOM);
 
@@ -93,7 +95,9 @@ ENUM_NEXT(diffie_hellman_group_names_short, NTRU_112_BIT, NTRU_256_BIT, MODP_NUL
 	"ntru256");
 ENUM_NEXT(diffie_hellman_group_names_short, NH_128_BIT, NH_128_BIT, NTRU_256_BIT,
 	"newhope128");
-ENUM_NEXT(diffie_hellman_group_names_short, MODP_CUSTOM, MODP_CUSTOM, NH_128_BIT,
+ENUM_NEXT(diffie_hellman_group_names_short, CURVE_SM2, CURVE_SM2, NH_128_BIT,
+	"curvesm2");
+ENUM_NEXT(diffie_hellman_group_names_short, MODP_CUSTOM, MODP_CUSTOM, CURVE_SM2,
 	"modpcustom");
 ENUM_END(diffie_hellman_group_names_short, MODP_CUSTOM);
 
@@ -534,6 +538,7 @@ bool diffie_hellman_group_is_ec(diffie_hellman_group_t group)
 		case ECP_512_BP:
 		case CURVE_25519:
 		case CURVE_448:
+		case CURVE_SM2:
 			return TRUE;
 		default:
 			return FALSE;
@@ -593,6 +598,9 @@ bool diffie_hellman_verify_value(diffie_hellman_group_t group, chunk_t value)
 			break;
 		case CURVE_448:
 			valid = value.len == 56;
+			break;
+		case CURVE_SM2:
+			valid = value.len == 64;
 			break;
 		case NTRU_112_BIT:
 		case NTRU_128_BIT:

@@ -1120,11 +1120,15 @@ static bool parse_certificate(private_openssl_x509_t *this)
 	this->subject = openssl_x509_name2id(X509_get_subject_name(this->x509));
 	this->issuer = openssl_x509_name2id(X509_get_issuer_name(this->x509));
 
-	if (!X509_PUBKEY_get0_param(&oid, NULL, NULL, NULL,
+	const unsigned char *pk;
+	int ppklen;
+	if (!X509_PUBKEY_get0_param(&oid, &pk, &ppklen, NULL,
 							    X509_get_X509_PUBKEY(this->x509)))
 	{
 		return FALSE;
 	}
+	DBG1(DBG_LIB, "[openssl-x509]pub_key oid: %d", openssl_asn1_known_oid(oid));
+	DBG2(DBG_LIB, "[openssl-x509]ppklen: %d, data: %s", ppklen, pk);
 	switch (openssl_asn1_known_oid(oid))
 	{
 		case OID_RSASSA_PSS:
@@ -1138,6 +1142,7 @@ static bool parse_certificate(private_openssl_x509_t *this)
 					BUILD_END);
 			break;
 		case OID_EC_PUBLICKEY:
+			DBG2(DBG_LIB, "[openssl-x509]OpenSSL X.509 parsing oid: %d(OID_EC_PUBLICKEY)", OID_EC_PUBLICKEY);
 			/* for ECDSA, we need the full subjectPublicKeyInfo, as it contains
 			 * the curve parameters. */
 			chunk = openssl_i2chunk(X509_PUBKEY, X509_get_X509_PUBKEY(this->x509));
@@ -1154,6 +1159,14 @@ static bool parse_certificate(private_openssl_x509_t *this)
 			chunk = openssl_i2chunk(X509_PUBKEY, X509_get_X509_PUBKEY(this->x509));
 			this->pubkey = lib->creds->create(lib->creds,
 					CRED_PUBLIC_KEY, ed_type, BUILD_BLOB_ASN1_DER,
+					chunk, BUILD_END);
+			free(chunk.ptr);
+			break;
+		case OID_SM2:
+			/* for SM2, the parsers expect the full subjectPublicKeyInfo */
+			chunk = openssl_i2chunk(X509_PUBKEY, X509_get_X509_PUBKEY(this->x509));
+			this->pubkey = lib->creds->create(lib->creds,
+					CRED_PUBLIC_KEY, KEY_SM2, BUILD_BLOB_ASN1_DER,
 					chunk, BUILD_END);
 			free(chunk.ptr);
 			break;
@@ -1177,6 +1190,7 @@ static bool parse_certificate(private_openssl_x509_t *this)
 	sig_scheme_tbs = openssl_i2chunk(X509_ALGOR, (X509_ALGOR*)alg);
 	if (!chunk_equals(sig_scheme, sig_scheme_tbs))
 	{
+		DBG1(DBG_LIB, "[openssl-x509]sig_scheme != sig_scheme_tbs");
 		free(sig_scheme_tbs.ptr);
 		free(sig_scheme.ptr);
 		return FALSE;

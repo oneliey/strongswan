@@ -320,6 +320,10 @@ static private_key_t *openssl_private_key_load(key_type_t type, va_list args)
 				case EVP_PKEY_ED448:
 					return openssl_ed_private_key_create(key, FALSE);
 #endif /* OPENSSL_VERSION_NUMBER */
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+				case EVP_PKEY_SM2:
+					return openssl_ec_private_key_create(key, FALSE);
+#endif
 				default:
 					EVP_PKEY_free(key);
 					break;
@@ -472,6 +476,11 @@ static private_key_t *openssl_private_key_connect(key_type_t type,
 		case EVP_PKEY_ED448:
 			return openssl_ed_private_key_create(key, TRUE);
 #endif /* OPENSSL_VERSION_NUMBER */
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+		case EVP_PKEY_SM2:
+			return openssl_ec_private_key_create(key, TRUE); 
+#endif
+
 		default:
 			EVP_PKEY_free(key);
 			break;
@@ -524,6 +533,11 @@ METHOD(plugin_t, get_features, int,
 			PLUGIN_PROVIDE(CRYPTER, ENCR_DES, 8),
 			PLUGIN_PROVIDE(CRYPTER, ENCR_DES_ECB, 8),
 #endif
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(CRYPTER, ENCR_SM4_CBC, 16),
+			PLUGIN_PROVIDE(CRYPTER, ENCR_SM4_ECB, 16),
+			PLUGIN_PROVIDE(CRYPTER, ENCR_SM4_CTR, 16),
+#endif
 			PLUGIN_PROVIDE(CRYPTER, ENCR_NULL, 0),
 		/* hashers */
 		PLUGIN_REGISTER(HASHER, openssl_hasher_create),
@@ -555,6 +569,9 @@ METHOD(plugin_t, get_features, int,
 			PLUGIN_PROVIDE(HASHER, HASH_SHA3_384),
 			PLUGIN_PROVIDE(HASHER, HASH_SHA3_512),
 #endif
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(HASHER, HASH_SM3),
+#endif
 #if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SHAKE)
 		PLUGIN_REGISTER(XOF, openssl_xof_create),
 			PLUGIN_PROVIDE(XOF, XOF_SHAKE_128),
@@ -562,8 +579,9 @@ METHOD(plugin_t, get_features, int,
 #endif
 #ifndef OPENSSL_NO_SHA1
 		/* keyed sha1 hasher (aka prf) */
-		PLUGIN_REGISTER(PRF, openssl_sha1_prf_create),
+		PLUGIN_REGISTER(PRF, openssl_sha1_prf_create), 
 			PLUGIN_PROVIDE(PRF, PRF_KEYED_SHA1),
+			// ?: openssl_sm2_prf_create
 #endif
 #ifndef OPENSSL_NO_HMAC
 		PLUGIN_REGISTER(PRF, openssl_hmac_prf_create),
@@ -579,6 +597,9 @@ METHOD(plugin_t, get_features, int,
 #ifndef OPENSSL_NO_SHA512
 			PLUGIN_PROVIDE(PRF, PRF_HMAC_SHA2_384),
 			PLUGIN_PROVIDE(PRF, PRF_HMAC_SHA2_512),
+#endif
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(PRF, PRF_HMAC_SM3),
 #endif
 		PLUGIN_REGISTER(SIGNER, openssl_hmac_signer_create),
 #ifndef OPENSSL_NO_MD5
@@ -599,6 +620,9 @@ METHOD(plugin_t, get_features, int,
 			PLUGIN_PROVIDE(SIGNER, AUTH_HMAC_SHA2_384_384),
 			PLUGIN_PROVIDE(SIGNER, AUTH_HMAC_SHA2_512_256),
 			PLUGIN_PROVIDE(SIGNER, AUTH_HMAC_SHA2_512_512),
+#endif
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(SIGNER, AUTH_HMAC_SM3),
 #endif
 #endif /* OPENSSL_NO_HMAC */
 #if (OPENSSL_VERSION_NUMBER >= 0x1000100fL && !defined(OPENSSL_NO_AES)) || \
@@ -646,6 +670,9 @@ METHOD(plugin_t, get_features, int,
 			PLUGIN_PROVIDE(DH, ECP_512_BP),
 			PLUGIN_PROVIDE(DH, ECP_224_BP),
 #endif /* OPENSSL_VERSION_NUMBER */
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(DH, CURVE_SM2),
+#endif
 #endif /* OPENSSL_NO_ECDH */
 #ifndef OPENSSL_NO_DH
 		/* MODP DH groups */
@@ -729,6 +756,9 @@ METHOD(plugin_t, get_features, int,
 				PLUGIN_SDEPEND(PUBKEY, KEY_RSA),
 				PLUGIN_SDEPEND(PUBKEY, KEY_ECDSA),
 				PLUGIN_SDEPEND(PUBKEY, KEY_DSA),
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+				PLUGIN_SDEPEND(PUBKEY, KEY_SM2),
+#endif
 		PLUGIN_REGISTER(CERT_DECODE, openssl_crl_load, TRUE),
 			PLUGIN_PROVIDE(CERT_DECODE, CERT_X509_CRL),
 #if OPENSSL_VERSION_NUMBER >= 0x0090807fL
@@ -743,13 +773,26 @@ METHOD(plugin_t, get_features, int,
 		/* EC private/public key loading */
 		PLUGIN_REGISTER(PRIVKEY, openssl_ec_private_key_load, TRUE),
 			PLUGIN_PROVIDE(PRIVKEY, KEY_ECDSA),
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(PRIVKEY, KEY_SM2), 
+#endif			
 		PLUGIN_REGISTER(PRIVKEY_GEN, openssl_ec_private_key_gen, FALSE),
 			PLUGIN_PROVIDE(PRIVKEY_GEN, KEY_ECDSA),
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(PRIVKEY, KEY_SM2), 
+#endif
 		PLUGIN_REGISTER(PUBKEY, openssl_ec_public_key_load, TRUE),
 			PLUGIN_PROVIDE(PUBKEY, KEY_ECDSA),
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+			PLUGIN_PROVIDE(PUBKEY, KEY_SM2), 
+#endif
 		/* signature encryption schemes */
 		PLUGIN_PROVIDE(PRIVKEY_SIGN, SIGN_ECDSA_WITH_NULL),
 		PLUGIN_PROVIDE(PUBKEY_VERIFY, SIGN_ECDSA_WITH_NULL),
+#if OPENSSL_VERSION_NUMBER >= 0x1010100fL && !defined(OPENSSL_NO_SM)
+		PLUGIN_PROVIDE(PRIVKEY_SIGN, SIGN_SM2_WITH_SM3), 
+		PLUGIN_PROVIDE(PUBKEY_VERIFY, SIGN_SM2_WITH_SM3),
+#endif
 #ifndef OPENSSL_NO_SHA1
 		PLUGIN_PROVIDE(PRIVKEY_SIGN, SIGN_ECDSA_WITH_SHA1_DER),
 		PLUGIN_PROVIDE(PUBKEY_VERIFY, SIGN_ECDSA_WITH_SHA1_DER),
