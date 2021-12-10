@@ -222,7 +222,7 @@ METHOD(private_key_t, get_public_key, public_key_t*,
 	p = key.ptr;
 	i2d_EC_PUBKEY(this->ec, &p);
 
-	DBG2(DBG_LIB, "[openssl-ec_priv_key](ec_priv_key).get_pub_key: key_type - %N(%d)", this->type, key_type_names, this->type);
+	DBG2(DBG_LIB, "[openssl-ec_priv_key](ec_priv_key).get_pub_key: key_type - %N(%d)", key_type_names, this->type, this->type);
 	public = lib->creds->create(lib->creds, CRED_PUBLIC_KEY, this->type,
 	// public = lib->creds->create(lib->creds, CRED_PUBLIC_KEY, KEY_ECDSA,
 								BUILD_BLOB_ASN1_DER, key, BUILD_END);

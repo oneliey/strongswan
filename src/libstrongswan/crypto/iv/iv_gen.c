@@ -64,6 +64,7 @@ iv_gen_t* iv_gen_create_for_alg(encryption_algorithm_t alg)
 		case ENCR_DES_IV32:
 		case ENCR_DES_IV64:
 		case ENCR_AES_ECB:
+		case ENCR_SM4_ECB:
 			break;
 	}
 	return NULL;

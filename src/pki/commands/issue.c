@@ -537,7 +537,7 @@ static int issue()
 										chunk_from_chars(ASN1_SEQUENCE, 0));
 	}
 	scheme = get_signature_scheme(private, digest, pss);
-	DBG1(DBG_LIB, "issue scheme: %N\n digest: %N, priv_key type: %N", signature_scheme_names, scheme->scheme, hash_algorithm_names, digest, key_type_names, private->get_type(private));
+	DBG1(DBG_LIB, "[pki-issue]issue scheme: %N\n digest: %N, priv_key type: %N", signature_scheme_names, scheme->scheme, hash_algorithm_names, digest, key_type_names, private->get_type(private));
 	if (!scheme)
 	{
 		error = "no signature scheme found";
