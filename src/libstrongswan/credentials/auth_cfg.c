@@ -615,7 +615,7 @@ METHOD(auth_cfg_t, add_pubkey_constraints, void,
 			{ "sha512",		SIGN_BLISS_WITH_SHA2_512,		KEY_BLISS,	 },
 			{ "identity",	SIGN_ED25519,					KEY_ED25519, },
 			{ "identity",	SIGN_ED448,						KEY_ED448,	 },
-			{ "sm3", 		SIGN_SM2_WITH_SM3,				KEY_SM2,	 },
+			// { "sm3", 		SIGN_SM2_WITH_SM3,				KEY_SM2,	 },
 		};
 
 		if (expected_strength != AUTH_RULE_MAX)
@@ -671,13 +671,13 @@ METHOD(auth_cfg_t, add_pubkey_constraints, void,
 			expected_strength = AUTH_RULE_BLISS_STRENGTH;
 			continue;
 		}
-		if (streq(token, "sm2") || streq(token, "ike:sm2"))
-		{
-			key_token = token;
-			expected_type = KEY_SM2;
-			// expected_strength = AUTH_RULE_SM2_STRENGTH
-			continue;
-		}
+		// if (streq(token, "sm2") || streq(token, "ike:sm2"))
+		// {
+		// 	key_token = token;
+		// 	expected_type = KEY_SM2;
+		// 	// expected_strength = AUTH_RULE_SM2_STRENGTH
+		// 	continue;
+		// }
 		if (streq(token, "pubkey") || streq(token, "ike:pubkey"))
 		{
 			key_token = token;

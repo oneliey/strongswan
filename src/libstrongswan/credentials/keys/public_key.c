@@ -286,7 +286,7 @@ static struct {
 	{ KEY_RSA,  3072, { .scheme = SIGN_RSA_EMSA_PKCS1_SHA2_256 }},
 	{ KEY_RSA,  7680, { .scheme = SIGN_RSA_EMSA_PKCS1_SHA2_384 }},
 	{ KEY_RSA,     0, { .scheme = SIGN_RSA_EMSA_PKCS1_SHA2_512 }},
-	{ KEY_RSA,     0, { .scheme = SIGN_RSA_EMSA_PKCS1_SM3	   }},
+	// { KEY_RSA,     0, { .scheme = SIGN_RSA_EMSA_PKCS1_SM3	   }},
 	{ KEY_ECDSA, 256, { .scheme = SIGN_ECDSA_WITH_SHA256_DER }},
 	{ KEY_ECDSA, 384, { .scheme = SIGN_ECDSA_WITH_SHA384_DER }},
 	{ KEY_ECDSA,   0, { .scheme = SIGN_ECDSA_WITH_SHA512_DER }},
