@@ -1299,7 +1299,7 @@ static void load_secrets(private_stroke_cred_t *this, mem_cred_t *secrets,
 			DBG1(DBG_CFG, "line %d: missing token", line_nr);
 			break;
 		}
-		if (match("RSA", &token) || match("ECDSA", &token) ||
+		if (match("RSA", &token) || match("ECDSA", &token) || match("SM2", &token) ||
 			match("BLISS", &token) || match("PKCS8", &token))
 		{
 			if (match("RSA", &token))
@@ -1313,6 +1313,10 @@ static void load_secrets(private_stroke_cred_t *this, mem_cred_t *secrets,
 			else if (match("BLISS", &token))
 			{
 				key_type = KEY_BLISS;
+			}
+			else if (match("SM2", &token))
+			{
+				key_type = KEY_SM2;
 			}
 			else
 			{

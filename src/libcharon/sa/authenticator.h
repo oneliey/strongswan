@@ -83,11 +83,16 @@ enum auth_method_t {
 	 * NULL Authentication Method as specified in draft-ietf-ipsecme-ikev2-null-auth
 	 */
 	AUTH_NULL = 13,
+	
+	/**
+	 * SM2
+	 */
+	AUTH_SM2_SM3 = 14,
 
 	/**
 	 * Digital Signature as specified in RFC 7427
 	 */
-	AUTH_DS = 14,
+	AUTH_DS = 15,
 
 	/**
 	 * IKEv1 initiator XAUTH with PSK, outside of IANA range

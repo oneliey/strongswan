@@ -167,6 +167,8 @@ static algo_map_t ike_encr[] = {
 	{ ENCR_AES_CCM_ICV16, 128, "AES-CCM-128 with 16 octet ICV [RFC5282]" },
 	{ ENCR_AES_CCM_ICV16, 192, "AES-CCM-192 with 16 octet ICV [RFC5282]" },
 	{ ENCR_AES_CCM_ICV16, 256, "AES-CCM-256 with 16 octet ICV [RFC5282]" },
+	{ ENCR_SM4_CBC,       256, "SM4-CBC-256"                             },
+	{ ENCR_SM4_CTR,       256, "SM4-CTR-256"                             },
 };
 
 /**
@@ -181,6 +183,7 @@ static algo_map_t ike_integ[] = {
 	{ AUTH_HMAC_SHA2_384_192, -1, "HMAC_SHA2_384_192 [RFC4868]" },
 	{ AUTH_HMAC_SHA2_512_256, -1, "HMAC_SHA2_512_256 [RFC4868]" },
 	{ AUTH_HMAC_SHA2_256_96,  -1, "HMAC_SHA2_256_96 [draft-ietf-ipsec-ciph-sha-256-00]" },
+	{ AUTH_HMAC_SM3,          -1, "HMAC_SM3"                    },
 	{ AUTH_UNDEFINED,         -1, "NONE [RFC4306]"              },
 };
 
@@ -222,6 +225,7 @@ static algo_map_t esp_encr[] = {
 	{ ENCR_AES_GCM_ICV8,  -1, "AES-GCM [RFC4106]"       },
 	{ ENCR_AES_GCM_ICV12, -1, "AES-GCM [RFC4106]"       },
 	{ ENCR_AES_GCM_ICV16, -1, "AES-GCM [RFC4106]"       },
+	{ENCR_SM4_CBC,        -1, "SM4"                     },
 };
 
 /**
@@ -235,6 +239,7 @@ static algo_map_t esp_integ[] = {
 	{ AUTH_HMAC_SHA2_512_256,  -1, "HMAC-SHA-512-256 [RFC4868]"               },
 	{ AUTH_HMAC_SHA2_256_96,   -1, "HMAC-SHA-256-96 [draft-ietf-ipsec-ciph-sha-256-00]" },
 	{ AUTH_HMAC_SHA2_256_256,  -1, "ANY 256 bit authentication [no checking]" },
+	{ AUTH_HMAC_SM3,           -1, "HMAC-SM3"                                 },
 	{ AUTH_UNDEFINED,          64, "ANY 64 bit authentication [no checking]"  },
 	{ AUTH_UNDEFINED,          96, "ANY 96 bit authentication [no checking]"  },
 	{ AUTH_UNDEFINED,         128, "ANY 128 bit authentication [no checking]" },

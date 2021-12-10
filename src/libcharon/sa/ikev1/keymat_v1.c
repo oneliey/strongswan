@@ -266,6 +266,8 @@ static uint16_t auth_to_prf(uint16_t alg)
 			return PRF_HMAC_MD5;
 		case AUTH_AES_XCBC_96:
 			return PRF_AES128_XCBC;
+		case AUTH_HMAC_SM3:
+			return PRF_HMAC_SM3;
 		default:
 			return PRF_UNDEFINED;
 	}
@@ -288,6 +290,8 @@ static uint16_t auth_to_hash(uint16_t alg)
 			return HASH_SHA512;
 		case AUTH_HMAC_MD5_96:
 			return HASH_MD5;
+		case AUTH_HMAC_SM3:
+			return HASH_SM3;
 		default:
 			return HASH_UNKNOWN;
 	}
@@ -387,6 +391,7 @@ METHOD(keymat_v1_t, derive_ike_keys, bool,
 		case AUTH_ECDSA_256:
 		case AUTH_ECDSA_384:
 		case AUTH_ECDSA_521:
+		case AUTH_SM2_SM3:
 		case AUTH_XAUTH_INIT_RSA:
 		case AUTH_XAUTH_RESP_RSA:
 		case AUTH_HYBRID_INIT_RSA:
@@ -458,6 +463,9 @@ METHOD(keymat_v1_t, derive_ike_keys, bool,
 			break;
 		case AUTH_ECDSA_521:
 			alg = PRF_HMAC_SHA2_512;
+			break;
+		case AUTH_SM2_SM3:
+			alg = PRF_HMAC_SM3;
 			break;
 		default:
 			/* use proposal algorithm */
@@ -552,6 +560,7 @@ METHOD(keymat_v1_t, derive_child_keys, bool,
 			case ENCR_AES_GCM_ICV12:
 			case ENCR_AES_GCM_ICV16:
 			case ENCR_AES_CTR:
+			case ENCR_SM4_CTR: // TODO: SM Check
 			case ENCR_NULL_AUTH_AES_GMAC:
 				enc_size += 4;
 				break;

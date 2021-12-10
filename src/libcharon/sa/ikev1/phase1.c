@@ -441,6 +441,9 @@ static auth_method_t get_pubkey_method(private_phase1_t *this, auth_cfg_t *auth)
 								break;
 						}
 						break;
+					case KEY_SM2:
+						method = AUTH_SM2_SM3;
+						break;
 					default:
 						DBG1(DBG_IKE, "private key of type %N not supported",
 							 key_type_names, private->get_type(private));
@@ -534,6 +537,7 @@ static bool check_auth_method(private_phase1_t *this, peer_cfg_t *peer_cfg,
 		case AUTH_ECDSA_256:
 		case AUTH_ECDSA_384:
 		case AUTH_ECDSA_521:
+		// case AUTH_SM2_SM3:
 			return method == AUTH_RSA;
 		default:
 			return method == given;
