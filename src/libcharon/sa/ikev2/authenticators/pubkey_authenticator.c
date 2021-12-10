@@ -464,6 +464,10 @@ static status_t sign_classic(private_pubkey_authenticator_t *this,
 					return FAILED;
 			}
 			break;
+		case KEY_SM2:
+			scheme = SIGN_SM2_WITH_SM3;
+			auth_method = AUTH_SM2_SM3;
+			break;
 		default:
 			DBG1(DBG_IKE, "private key of type %N not supported",
 				 key_type_names, private->get_type(private));
@@ -609,6 +613,10 @@ METHOD(authenticator_t, process, status_t,
 			break;
 		case AUTH_ECDSA_521:
 			params->scheme = SIGN_ECDSA_521;
+			break;
+		case AUTH_SM2_SM3:
+			key_type = KEY_SM2;
+			params->scheme = SIGN_SM2_WITH_SM3;
 			break;
 		case AUTH_DS:
 			if (parse_signature_auth_data(&auth_data, &key_type, params))
