@@ -305,6 +305,7 @@ static private_key_t *openssl_private_key_load(key_type_t type, va_list args)
 		key = d2i_AutoPrivateKey(NULL, (const u_char**)&blob.ptr, blob.len);
 		if (key)
 		{
+			DBG2(DBG_LIB, "[openssl-plugin] Private Key type: %d", EVP_PKEY_base_id(key));
 			switch (EVP_PKEY_base_id(key))
 			{
 #ifndef OPENSSL_NO_RSA
