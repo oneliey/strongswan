@@ -167,8 +167,8 @@ static algo_map_t ike_encr[] = {
 	{ ENCR_AES_CCM_ICV16, 128, "AES-CCM-128 with 16 octet ICV [RFC5282]" },
 	{ ENCR_AES_CCM_ICV16, 192, "AES-CCM-192 with 16 octet ICV [RFC5282]" },
 	{ ENCR_AES_CCM_ICV16, 256, "AES-CCM-256 with 16 octet ICV [RFC5282]" },
-	{ ENCR_SM4_CBC,       256, "SM4-CBC-256"                             },
-	{ ENCR_SM4_CTR,       256, "SM4-CTR-256"                             },
+	{ ENCR_SM4_CBC,       128, "SM4-CBC-256"                             },
+	{ ENCR_SM4_CTR,       128, "SM4-CTR-256"                             },
 };
 
 /**

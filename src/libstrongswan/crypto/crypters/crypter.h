@@ -65,8 +65,8 @@ enum encryption_algorithm_t {
 	/* see macros below to handle RC2 (effective) key length */
 	ENCR_RC2_CBC =          1028,
 	ENCR_AES_ECB =			1029,
-	ENCR_SM4_CBC = 			1030,
-	ENCR_SM4_ECB =    		1031,
+	ENCR_SM4_CBC =          1030,
+	ENCR_SM4_ECB =          1031,
 	ENCR_SM4_CTR =          1032,
 };
 
