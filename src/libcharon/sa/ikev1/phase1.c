@@ -532,12 +532,14 @@ static bool check_auth_method(private_phase1_t *this, peer_cfg_t *peer_cfg,
 	auth_method_t method;
 
 	method = calc_auth_method(this, peer_cfg);
+	DBG2(DBG_CFG, "given auth method: %N, calc from peer_cfg: %N", 
+		auth_method_names, given, auth_method_names, method);
 	switch (given)
 	{
 		case AUTH_ECDSA_256:
 		case AUTH_ECDSA_384:
 		case AUTH_ECDSA_521:
-		// case AUTH_SM2_SM3:
+		case AUTH_SM2_SM3:
 			return method == AUTH_RSA;
 		default:
 			return method == given;

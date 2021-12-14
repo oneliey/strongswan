@@ -356,13 +356,21 @@ openssl_ec_public_key_t *openssl_ec_public_key_load(key_type_t type,
 	}
 	this = create_empty();
 	this->ec = d2i_EC_PUBKEY(NULL, (const u_char**)&blob.ptr, blob.len);
-	EC_KEY_METHOD*meth = EC_KEY_get_method(this->ec);
-	// DBG1(DBG_LIB, "openssl-plugin: ec-method[%s], version[%d]", this->ec->meth->name, this->ec->version);
 	if (!this->ec)
 	{
 		destroy(this);
 		return NULL;
 	}
+	EC_GROUP * ec_group = EC_KEY_get0_group(this->ec);
+	if (EC_GROUP_get_asn1_flag(ec_group)) {
+		int nid;
+		nid = EC_GROUP_get_curve_name(ec_group);
+		DBG2(DBG_LIB, "[openssl-ec_pub_key] EC Group curve nid: %d, name: %s", nid, OBJ_nid2sn(nid));
+		if (nid == NID_sm2) {
+			type = KEY_SM2;
+		}
+	}
+	DBG1(DBG_LIB, "[openssl-ec_pub_key] Load Pub Key Type: %N", key_type_names, type);
 	this->type = type;
 	return &this->public;
 }

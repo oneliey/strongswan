@@ -333,25 +333,26 @@ private_key_t *openssl_ec_private_key_create(EVP_PKEY *key, bool engine)
 {
 	private_openssl_ec_private_key_t *this;
 	EC_KEY *ec;
-	key_type_t type;
+	key_type_t type = KEY_ECDSA;
 
 	ec = EVP_PKEY_get1_EC_KEY(key);
-	switch (EVP_PKEY_base_id(key))
-	{
-		case EVP_PKEY_EC:
-			type = KEY_ECDSA;
-			break;
-		case EVP_PKEY_SM2:
-			type = KEY_SM2;
-		default:
-			EVP_PKEY_free(key);
-			return NULL;
-	}
 	EVP_PKEY_free(key);
 	if (!ec)
 	{
 		return NULL;
 	}
+	EC_GROUP * ec_group = EC_KEY_get0_group(ec);
+	if (EC_GROUP_get_asn1_flag(ec_group)) {
+		int nid;
+		nid = EC_GROUP_get_curve_name(ec_group);
+		DBG2(DBG_LIB, "[openssl-ec_priv_key] EC Group curve nid: %d, name: %s", nid, OBJ_nid2sn(nid));
+		if (nid == NID_sm2) {
+			type = KEY_SM2;
+		} else {
+			type = KEY_ECDSA;
+		}
+	}
+	DBG1(DBG_LIB, "[openssl-ec_priv_key] Create Private Key Type: %N", key_type_names, type);
 	this = create_empty();
 	this->ec = ec;
 	this->engine = engine;
