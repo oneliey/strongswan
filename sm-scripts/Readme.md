@@ -6,7 +6,7 @@ Using plugin `openssl` to provide SM2/3/4 algorithm for IKE & ESP
 
 ```
 sudo apt-get install build-essential automake autoconf libtool pkg-config gettext gperf flex
- bison openssl libssl-dev
+ bison perl openssl libssl-dev
 ```
 
 
@@ -36,18 +36,23 @@ sudo make install
 
 ## Cert & Key
 
+### Generate Key && Issue Cert
+
 CA Key & Cert
 
 ```
 psec pki --gen --type sm2 > caKey.sm2.der
 
-ipsec pki --self --ca --type sm2 --digest sm3 --lifetime 1460 --in caKey.sm2.der \
-          --dn "C=CH, O=strongSwan, CN=strongSwan Root CA" \
-          > caCert.sm2.der
+ipsec pki --self --ca --type sm2 --digest sm3 \
+        --lifetime 1460 --in caKey.sm2.der \
+        --dn "C=CH, O=strongSwan, CN=strongSwan Root CA" \
+        > caCert.sm2.der
 ipsec pki --print --in caCert.sm2.der
 ```
 
 Using CA Cert to issue Sun Cert
+
+Replace your host `Sun` ip in `--san YOUR_IP` 
 
 ```
 ipsec pki --gen --type sm2 > sunKey.sm2.der
@@ -58,24 +63,49 @@ ipsec pki --issue --in sunKey.sm2.der \
           --lifetime 730 \
           --dn "C=CH, O=strongSwan, CN=sun.strongswan.org" \
           --san sun.strongswan.org --san 192.168.116.129 \
-          --crl http://crl.strongswan.org/strongswan.crl  --debug 2 > sunCert.sm2-sm3.der
+          --crl http://crl.strongswan.org/strongswan.crl \
+          > sunCert.sm2-sm3.der
 ```
 
 Using CA Cert to issue Moon Cert
 
+Replace your host `Moon` ip in `--san YOUR_IP` 
+
 ```
 ipsec pki --gen --type sm2 > moonKey.sm2.der
-ipsec pki --pub --in moonKey.sm2.der --type sm2 > moonKey.sm2.der
+ipsec pki --pub --in moonKey.sm2.der --type sm2 > moonPub.sm2.der
 ipsec pki --issue --in moonKey.sm2.der \
           --type sm2 --digest sm3 \
           --cacert caCert.sm2.der --cakey caKey.sm2.der \
           --lifetime 730 \
           --dn "C=CH, O=strongSwan, CN=moon.strongswan.org" \
           --san moon.strongswan.org --san 192.168.116.130 \
-          --crl http://crl.strongswan.org/strongswan.crl  --debug 1 > moonCert.sm2-sm3.der
+          --crl http://crl.strongswan.org/strongswan.crl \
+          > moonCert.sm2-sm3.der
 ```
 
-## Configuration
+Using `--debug [level(1/2/3/4)]` to show detailed logs
+
+### Copy Cert & Key
+
+Host Sun
+
+```
+sudo cp -r caCert.sm2.der /etc/ipsec.d/cacerts/
+sudo cp -r sunCert.sm2-sm3.der /etc/ipsec.d/certs/
+sudo cp -r sunKey.sm2.der /etc/ipsec.d/private/
+```
+
+Host Moon
+
+```
+sudo cp -r caCert.sm2.der /etc/ipsec.d/cacerts/
+sudo cp -r moonCert.sm2-sm3.der /etc/ipsec.d/certs/
+sudo cp -r moonKey.sm2.der /etc/ipsec.d/private/
+```
+
+
+## Configuration for stroke
 
 `/etc/strongswan.conf`: 
 
@@ -119,8 +149,8 @@ charon {
             # increase default loglevel for all daemon subsystems
             default = 2
             # loglevel for special subsystems
-            lib = 2
-            knl = 2
+            lib = 3
+            knl = 3
             enc = 1
         }
         stderr {
@@ -199,5 +229,5 @@ conn host-host
 `/etc/ipsec.secrets`:
 
 ```
-: SM2 sunKey.sm2.der
+: SM2 moonKey.sm2.der
 ```
